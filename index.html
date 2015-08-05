@@ -7,29 +7,43 @@
 <body>
 	<div class="content">
 		<h1>Proximity</h1>
-		<form id="filter-form"></form>
-		<div class="filters">
-			<div class="row">
-				<input type="text">
-			</div>
-			<div class="row">
-				<span>Within: </span>
-				<select name="proximity" id="proximity-list"></select>
-				<span>of: </span>
-				<select name="location" id="location"></select>
-			</div>
-			<div class="row">
-				<span>Starting: </span>
-				<input type="submit" id="location">
-				<span>in: </span>
-				<select name="proximity" id="proximity-list"></select>
-			</div>
-			<div class="row">
-				<button id="search-button">Search</button>
-			</div>
-		</div>
-		<div class="results">
+		<section class="filters">
+			<form id="filter-form">
+				<div class="row">
+					<!-- Use Blur event-->
+					<input type="text"> 
+				</div>
+				<div class="row">
+					<span>Within: </span>
+					<select name="proximity" id="proximity-list"></select>
+					<span>of: </span>
+					<select name="location" id="location"></select>
+				</div>
+				<div class="row">
+					<span>Starting: </span>
+					<input type="submit" id="location">
+					<span>in: </span>
+					<select name="proximity" id="proximity-list"></select>
+				</div>
+			</form>
+		</section>
+		<section class="results">
 			
+		</section>
+		<div class="templates hidden">
+			<div class="event-container">
+				<a href="" class="event-link">View Event</a>
+				<div class="venue">
+					<h3>Venue</h3>
+					<div class="venue-name"></div>
+					<div class="venue-city"></div>
+					<div class="venue-state"></div>
+				</div>
+				<div class="artist-container">
+					<h3>Artists</h3>
+					<div class="artist-name"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>
