@@ -1,4 +1,5 @@
 $(function(){
+    $( "#from-date" ).datepicker();
 	$(".filter-form").submit(function(){
 		$(".results").html("");
 		getEvents();
