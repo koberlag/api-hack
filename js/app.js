@@ -1,16 +1,24 @@
+var autocomplete;
 $(function(){
     $( "#from-date" ).datepicker();
 	$(".filter-form").submit(function(){
-		$(".results").html("");
+		$(".result-container").html("");
 		getEvents();
 	});
+
+	 // Create the autocomplete object, restricting the search
+  // to geographical location types.
+  	autocomplete = new google.maps.places.Autocomplete(
+      /** @type {HTMLInputElement} */(document.getElementById('location')),
+      { types: ['geocode'] });
+  	
 });
 
 function getEvents(){
 	// the parameters we need to pass in our request to StackOverflow's API
 	 var request = {
 	 	format : 'json',
-	 	location : 'Austin',
+	 	location : $("#location").val(),
 	 	app_id : 'Proximity'
 	 },
 	 	eventUrl = "http://api.bandsintown.com/events/search";
@@ -28,7 +36,7 @@ function getEvents(){
 
 		$.each(eventData, function(i, eventResult) {
 			var resultView = getEventView(eventResult);
-			$('.results').append(resultView);
+			$('.result-container').append(resultView);
 		});
 	})
 	.fail(function(jqXHR, error, errorThrown){
@@ -57,81 +65,40 @@ function getEventView(result){
 	return eventContainer;
 }
 
+function geolocate() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var geolocation = new google.maps.LatLng(
+          position.coords.latitude, position.coords.longitude);
+      var circle = new google.maps.Circle({
+        center: geolocation,
+        radius: position.coords.accuracy
+      });
+      autocomplete.setBounds(circle.getBounds());
+    });
+  }
+}
 
-
-
-// var test = [{
-// id: 10352592,
-// url: "http://www.bandsintown.com/event/10352592",
-// datetime: "2015-08-04T11`e7:00:00",
-// ticket_url: "http://www.bandsintown.com/event/10352592/buy_tickets?came_from=233",
-// artists: [
-// {
-// name: "Flynt Reid",
-// url: "http://www.bandsintown.com/FlyntReid",
-// mbid: null
-// }
-// ],
-// venue: {
-// id: 525661,
-// url: "http://www.bandsintown.com/venue/525661",
-// name: "Chuggin Monkey",
-// city: "Austin",
-// region: "TX",
-// country: "United States",
-// latitude: 30.267478,
-// longitude: -97.74126
-// },
-// ticket_status: "unavailable",
-// on_sale_datetime: null
-// },
-// {
-// id: 10244112,
-// url: "http://www.bandsintown.com/event/10244112",
-// datetime: "2015-08-04T18:00:00",
-// ticket_url: "http://www.bandsintown.com/event/10244112/buy_tickets?came_from=233",
-// artists: [
-// {
-// name: "Amanda Cevallos",
-// url: "http://www.bandsintown.com/AmandaCevallos",
-// mbid: null
-// }
-// ],
-// venue: {
-// id: 1114364,
-// url: "http://www.bandsintown.com/venue/1114364",
-// name: "The Broken Spoke",
-// city: "Austin",
-// region: "TX",
-// country: "United States",
-// latitude: 30.240763,
-// longitude: -97.785176
-// },
-// ticket_status: "unavailable",
-// on_sale_datetime: null
-// },
-// {
-// id: 10150152,
-// url: "http://www.bandsintown.com/event/10150152",
-// datetime: "2015-08-04T19:00:00",
-// ticket_url: "http://www.bandsintown.com/event/10150152/buy_tickets?came_from=233",
-// artists: [
-// {
-// name: "Dan Quinn Band",
-// url: "http://www.bandsintown.com/DanQuinnBand",
-// mbid: null
-// }
-// ],
-// venue: {
-// id: 2272899,
-// url: "http://www.bandsintown.com/venue/2272899",
-// name: "Vulcan Gas Company",
-// city: "Austin",
-// region: "TX",
-// country: "United States",
-// latitude: 30.267162,
-// longitude: -97.738465
-// },
-// ticket_status: "unavailable",
-// on_sale_datetime: null
-// }];
+function codeLatLng() {
+	var x = autocomplete;
+  var input = document.getElementById('latlng').value;
+  var latlngStr = input.split(',', 2);
+  var latlng = new google.maps.LatLng(latlngStr[0], latlngStr[1]);
+  geocoder.geocode({'location': latlng}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      if (results[1]) {
+        map.setZoom(11);
+        marker = new google.maps.Marker({
+          position: latlng,
+          map: map
+        });
+        infowindow.setContent(results[1].formatted_address);
+        infowindow.open(map, marker);
+      } else {
+        window.alert('No results found');
+      }
+    } else {
+      window.alert('Geocoder failed due to: ' + status);
+    }
+  });
+}
