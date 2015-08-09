@@ -1,3 +1,10 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 .hidden{
 	display: none;
 }
@@ -5,8 +12,28 @@
 
 h1,
 .filter-container,
-.event-container{
+.event-container,
+.error{
 	border:solid 1px black;
 	width:50%;
 	margin:0 auto 5px;
+}
+
+.event-container{
+	width:250px;
+	height:250px;
+	border-radius: 5px;
+	display: inline-block;
+	margin: 1%;
+	background-position: center;
+}
+
+
+.result-container{
+	text-align: center;
+}
+
+.artist-list li{
+	list-style-type: none;
+	display: inline-block;;
 }

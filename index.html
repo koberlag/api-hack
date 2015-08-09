@@ -31,14 +31,14 @@
 					</select>
 					<span>of: </span>
 					 <input id="location" placeholder="Enter Your City Name"
-             				onFocus="geolocate()" type="text"></input>
+             				onFocus="geolocate" type="text"></input>
 				</div>
 				<div class="row">
-					<span>Starting: </span>
-					<input type="text" id="from-date"
-					<span>in: </span>
-				<!-- 	<input type="number" name="proximity" id="proximity-input" min="0" max="24""> -->
-					<select name="proximity" id="proximity-list">
+					<span>From: </span>
+					<input type="text" id="from-date">
+					<!-- <span>in: </span>-->
+					<!-- <input type="number" name="proximity" id="proximity-input" min="0" max="24""> -->
+					<!-- <select name="proximity" id="proximity-list">
 						<option value="">(Any Time)</option>
 						<option value="1">1 hour</option>
 						<option value="2">2 hours</option>
@@ -46,7 +46,7 @@
 						<option value="4">4 hours</option>
 						<option value="5">5 hours</option>
 						<option value="6">6 hours</option>
-					</select>
+					</select> -->
 				</div>
 					<input type="submit">
 
@@ -66,6 +66,9 @@
 					<h3>Artists</h3>
 					<ul class="artist-list"></ul>
 				</div>
+			</div>
+			<div class="error">
+				<p>Uh-oh! Something went wrong with your request. Here's what we know:</p>
 			</div>
 		</div>
 	</div>
