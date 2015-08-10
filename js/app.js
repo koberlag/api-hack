@@ -1,14 +1,28 @@
 var autocomplete, lat, lng;
 $(function(){
+	var loading = $('#loading');
+	$(document)
+	  .ajaxStart(function () {
+	    loading.show();
+	  })
+	  .ajaxStop(function () {
+	    loading.hide();
+	  });
     $( "#from-date" ).datepicker();
 	$(".filter-form").submit(function(){
 		$(".result-container").html("");
-		  // Get the place details from the autocomplete object.
-  		var place = autocomplete.getPlace();
 		getEvents();
-		// getLocation();
 	});
 
+	$(".location-icon").click(function(){
+		if(!$(this).hasClass("current-location")){
+		 	loading = $('#loading').show();
+			$(".result-container").html("");
+			geolocate()
+		}
+	});
+
+	
 	initialize();
 });
 
@@ -29,7 +43,12 @@ function initialize(){
   // When the user selects an address from the dropdown,
   // populate the city and state in the location field
   google.maps.event.addListener(autocomplete, 'place_changed', function() {
+	 // Get the place details from the autocomplete object.
+  	 var place = autocomplete.getPlace();
+  	 lat = place.geometry.location.lat();
+  	 lng = place.geometry.location.lng();
      getEvents();
+     $(".location-icon").removeClass("current-location");
   });
 }
 
@@ -41,7 +60,7 @@ function getEvents(){
 	 	location : lat + "," + lng,
 	 	radius: radius,
 	 	app_id : 'Proximity',
-	 	per_page:3
+	 	per_page:2
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
 	
@@ -96,16 +115,16 @@ var showError = function(error){
 function getEventView(result){
 	var eventContainer 	= $(".templates").find(".event-container").clone(),
 		eventLink 		= eventContainer.find(".event-link"),
+		eventTime		= eventContainer.find(".event-time"),
 		venueName	  	= eventContainer.find(".venue-name"),
-		venueCity 		= eventContainer.find(".venue-city"),
-		venueState 		= eventContainer.find(".venue-state"),
+		venueLocation 		= eventContainer.find(".venue-location"),
 		artistList		= eventContainer.find(".artist-list");
 
 	eventLink.attr("href", result.facebook_rsvp_url);
 	eventLink.text(result.title);
+	eventTime.text(result.formatted_datetime);
 	venueName.text(result.venue.name);
-	venueCity.text(result.venue.city);
-	venueState.text(result.venue.region);
+	venueLocation.text(result.formatted_location);
 
 	$(result.artists).each(function(index, artist){
 		 var artistItem = "<li>" + artist.name;
@@ -114,7 +133,7 @@ function getEventView(result){
 			var x = result.artists[0],
 				imageUrl = x.thumb_url;
 
-	eventContainer.css("background-image", 'url(' + imageUrl + ')');  
+	//eventContainer.css("background-image", 'url(' + imageUrl + ')');  
 
 	return eventContainer;
 }
@@ -142,13 +161,14 @@ function geolocate(){
 	     lng = position.coords.longitude;
 	    var latlng = new google.maps.LatLng(lat, lng);
 
-	    getEvents(lat, lng);
+	    getEvents();
 	    //reverse geocode the coordinates, returning location information.
 	    geocoder.geocode({ 'latLng': latlng }, function (results, status) {
 	    	if (status == google.maps.GeocoderStatus.OK) {
 	    		var address = results[3].address_components,
 		    		locationName = address[0].long_name + ", " + address[2].short_name;
-		    	$("#location").val(locationName);
+		    	$("#location").val("(Current Location)");
+		    	$(".location-icon").addClass("current-location");
 			}
 	    });
 	});

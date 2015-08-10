@@ -8,12 +8,13 @@
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 	<link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=places"></script>
 	<script src="js/app.js"></script>
 </head>
 <body>
+	<h1>Proximity</h1>
 	<div class="content">
-		<h1>Proximity</h1>
 		<section class="filter-container">
 			<form class="filter-form" onsubmit="return false;">
 				<!-- <div class="row"> -->
@@ -21,7 +22,7 @@
 					<!-- <span>Artists: </span><input type="search"> 
 				</div> -->
 				<div class="row">
-					<span>Within: </span>
+					<span id="proximity-label">Within: </span>
 					<select name="proximity" id="proximity-list">
 						<option value="1">1 Mile</option>
 						<option value="5">5 Miles</option>
@@ -29,13 +30,17 @@
 						<option value="25">25 Miles</option>
 						<option value="50">50 Miles</option>
 					</select>
-					<span>of: </span>
+					<span id="location-label">of: </span>
 					 <input id="location" placeholder="Enter Your City Name"
              				onFocus="geolocate" type="text"></input>
-				</div>
-				<div class="row">
-					<span>From: </span>
+             		<span class="location-icon"><i class="fa fa-map-marker"></i></span>
+             		<span id="date-label">from: </span>
 					<input type="text" id="from-date">
+					<input id="submit-button" type="submit" value="Search">
+				</div>
+				<!-- <div class="row">
+					<span id="date-label">from: </span>
+					<input type="text" id="from-date"> -->
 					<!-- <span>in: </span>-->
 					<!-- <input type="number" name="proximity" id="proximity-input" min="0" max="24""> -->
 					<!-- <select name="proximity" id="proximity-list">
@@ -47,20 +52,23 @@
 						<option value="5">5 hours</option>
 						<option value="6">6 hours</option>
 					</select> -->
-				</div>
-					<input type="submit">
+				<!-- </div> -->
+					
 
 			</form>
 		</section>
+		<div id="loading"><i class="fa fa-spinner fa-pulse"></i></div>
 		<section class="result-container"></section>
 		<div class="templates hidden">
 			<div class="event-container">
-				<a href="" class="event-link">View Event</a>
+				<h3 class="event-header">
+					<a href="" class="event-link"></a>
+				</h3>
+				<div class="event-time"></div>
 				<div class="venue-container">
 					<h3>Venue</h3>
 					<div class="venue-name"></div>
-					<div class="venue-city"></div>
-					<div class="venue-state"></div>
+					<div class="venue-location"></div>
 				</div>
 				<div class="artist-container">
 					<h3>Artists</h3>
