@@ -8,7 +8,7 @@ $(function(){
 	  .ajaxStop(function () {
 	    loading.hide();
 	  });
-    $( "#from-date" ).datepicker();
+     $("#from-date").datepicker().datepicker('setDate', new Date());
 	$(".filter-form").submit(function(){
 		$(".result-container").html("");
 		getEvents();
@@ -53,11 +53,18 @@ function initialize(){
 }
 
 function getEvents(){
+	var radius = $("#proximity-list").val();
+	 // 	beginDate = new Date($("#from-date").val()),
+		// endDate = new Date(beginDate);
+
+		// endDate.setDate(beginDate.getMonth() + 12)
+		//endDate = beginDate.setDate(beginDate.getDate() + 365);
 	// the parameters we need to pass in our request to the bands in town API
-	 var radius = $("#proximity-list").val(),
-	 request = {
+	  
+	 var request = {
 	 	format : 'json',
 	 	location : lat + "," + lng,
+	 	//date : beginDate,// + "," + endDate,
 	 	radius: radius,
 	 	app_id : 'Proximity',
 	 	per_page:2
@@ -115,16 +122,17 @@ var showError = function(error){
 function getEventView(result){
 	var eventContainer 	= $(".templates").find(".event-container").clone(),
 		eventLink 		= eventContainer.find(".event-link"),
+		eventHeader     = eventContainer.find(".event-header"),
 		eventTime		= eventContainer.find(".event-time"),
-		venueName	  	= eventContainer.find(".venue-name"),
-		venueLocation 		= eventContainer.find(".venue-location"),
+		// venueName	  	= eventContainer.find(".venue-name"),
+		// venueLocation 		= eventContainer.find(".venue-location"),
 		artistList		= eventContainer.find(".artist-list");
 
 	eventLink.attr("href", result.facebook_rsvp_url);
-	eventLink.text(result.title);
+	eventHeader.text(result.title);
 	eventTime.text(result.formatted_datetime);
-	venueName.text(result.venue.name);
-	venueLocation.text(result.formatted_location);
+	// venueName.text(result.venue.name);
+	// venueLocation.text(result.formatted_location);
 
 	$(result.artists).each(function(index, artist){
 		 var artistItem = "<li>" + artist.name;
