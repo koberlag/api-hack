@@ -13,6 +13,12 @@ html {
   box-sizing: inherit;
 }
 
+ html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
 h1
 {
 	padding: 25px;	
@@ -36,11 +42,15 @@ h3
 .filter-container select,
 .filter-container input
 {
+	-webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 	padding:.5em;
 	border: none;
 	font-size: .75em;
 	margin:.5em 0;
 	border-radius: 5px;
+
 }
 
 .filter-container,
@@ -54,6 +64,12 @@ h3
 
 .content{
 	margin:0 10%;
+	height: 100%;
+}
+
+.result-container{
+	height: 80%;
+
 }
 
 .event-container{
@@ -131,6 +147,7 @@ h3
 	font-size:2em;
 	padding-left: 1em;
 	width:auto;
+	border-radius: 10px 10px 0 0;
 }
 
 .map-view
@@ -161,6 +178,21 @@ h3
 {
 	color:#FC4757;
 }
+
+.view-switch .map-view:hover
+{
+	color:#FC4757;
+}
+
+.view-switch .list-view:hover
+{
+	color:#CB9C80;
+}
+
+ #map 
+ {
+    height: 100%;
+ }
 
 
 .hidden{

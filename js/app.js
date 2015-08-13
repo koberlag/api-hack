@@ -10,7 +10,6 @@ $(function(){
 	  });
      $("#from-date").datepicker().datepicker('setDate', new Date());
 	$(".filter-form").submit(function(){
-		$(".result-container").html("");
 		getEvents();
 	});
 
@@ -22,17 +21,52 @@ $(function(){
 		}
 	});
 
-	
-	initialize();
+	$(".map-view").click(function(){
+		var resultContainer = $(".result-container");
+		resultContainer.html("");
+		var map = $("#map").clone(),
+			viewSwitch = $('.view-switch').clone();
+		resultContainer.prepend(viewSwitch);
+		resultContainer.append(map);
+		initMap();
+	});
+
+	$(".list-view").click(function(){
+		var resultContainer = $(".result-container");
+		resultContainer.html("");
+		var map = $("#map").clone(),
+			viewSwitch = $('.view-switch').clone();
+		resultContainer.prepend(viewSwitch);
+		getEvents();
+	});
 });
 
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: -33.866, lng: 151.196},
+    zoom: 15
+  });
+
+  var infowindow = new google.maps.InfoWindow();
+  var service = new google.maps.places.PlacesService(map);
+
+  service.getDetails({
+    placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
+  }, function(place, status) {
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+      var marker = new google.maps.Marker({
+        map: map,
+        position: place.geometry.location
+      });
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.setContent(place.name);
+        infowindow.open(map, this);
+      });
+    }
+  });
+}
+
 function initialize(){
-	// // Create the autocomplete object, restricting the search
- //  	// to geographical location types.
- //  	autocomplete = new google.maps.places.Autocomplete($('#location'), 
- //  	{ 
- //  		types: ['geocode'] 
- //  	});
  // Create the autocomplete object, restricting the search
   // to geographical location types.
   autocomplete = new google.maps.places.Autocomplete(
@@ -53,6 +87,9 @@ function initialize(){
 }
 
 function getEvents(){
+	//Clear current results
+	$(".result-container").html("");
+
 	var radius = $("#proximity-list").val(),
 		beginDate = new Date($("#from-date").val())
 		endDate = new Date(beginDate.getTime() + (60*60*24*365*1000));
@@ -88,8 +125,10 @@ function getArtistEvents(request, eventId, artist){
 	.done(function(eventData){
 		$.each(eventData, function(i, eventResult) {
 			if(eventId == eventResult.id){
-				var resultView = getEventView(eventResult);
-				$('.result-container').append(resultView);
+				var resultView = getEventView(eventResult),
+					resultContainer = $('.result-container');
+				resultContainer.prepend($('.view-switch'));
+				resultContainer.append(resultView);
 			}
 		});
 	});
@@ -121,42 +160,19 @@ function getEventView(result){
 		eventLink 		= eventContainer.find(".event-link"),
 		eventHeader     = eventContainer.find(".event-header"),
 		eventTime		= eventContainer.find(".event-time"),
-		// venueName	  	= eventContainer.find(".venue-name"),
-		// venueLocation 		= eventContainer.find(".venue-location"),
 		artistList		= eventContainer.find(".artist-list");
 
 	eventLink.attr("href", result.facebook_rsvp_url);
 	eventHeader.text(result.title);
 	eventTime.text(result.formatted_datetime);
-	// venueName.text(result.venue.name);
-	// venueLocation.text(result.formatted_location);
 
 	$(result.artists).each(function(index, artist){
 		 var artistItem = "<li>" + artist.name;
 		 artistList.append(artistItem);
 	});
-			var x = result.artists[0],
-				imageUrl = x.thumb_url;
-
-	//eventContainer.css("background-image", 'url(' + imageUrl + ')');  
 
 	return eventContainer;
 }
-
-// function geolocate() {
-//   if (navigator.geolocation) {
-//     navigator.geolocation.getCurrentPosition(function(position) {
-//       var geolocation = new google.maps.LatLng(
-//           position.coords.latitude, position.coords.longitude);
-//       var circle = new google.maps.Circle({
-//         center: geolocation,
-//         radius: position.coords.accuracy
-//       });
-//       getLocationName(geolocation);
-//       autocomplete.setBounds(circle.getBounds());
-//     });
-//   }
-// }
 
 //Gets the current location and displays the city and state
 function geolocate(){
