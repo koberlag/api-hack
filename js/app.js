@@ -53,18 +53,15 @@ function initialize(){
 }
 
 function getEvents(){
-	var radius = $("#proximity-list").val();
-	 // 	beginDate = new Date($("#from-date").val()),
-		// endDate = new Date(beginDate);
-
-		// endDate.setDate(beginDate.getMonth() + 12)
-		//endDate = beginDate.setDate(beginDate.getDate() + 365);
+	var radius = $("#proximity-list").val(),
+		beginDate = new Date($("#from-date").val())
+		endDate = new Date(beginDate.getTime() + (60*60*24*365*1000));
+	
 	// the parameters we need to pass in our request to the bands in town API
-	  
-	 var request = {
+	var request = {
 	 	format : 'json',
 	 	location : lat + "," + lng,
-	 	//date : beginDate,// + "," + endDate,
+	 	date : beginDate.toISOString().substring(0,10) + "," + endDate.toISOString().substring(0,10),
 	 	radius: radius,
 	 	app_id : 'Proximity',
 	 	per_page:2
