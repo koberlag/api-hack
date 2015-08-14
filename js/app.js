@@ -1,69 +1,76 @@
-var autocomplete, lat, lng;
+var autocomplete, lat, lng, resultsLatLng = [];
 $(function(){
-	var loading = $('#loading');
-	$(document)
-	  .ajaxStart(function () {
-	    loading.show();
-	  })
-	  .ajaxStop(function () {
-	    loading.hide();
-	  });
-     $("#from-date").datepicker().datepicker('setDate', new Date());
-	$(".filter-form").submit(function(){
-		getEvents();
-	});
-
-	$(".location-icon").click(function(){
-		if(!$(this).hasClass("current-location")){
-		 	loading = $('#loading').show();
-			$(".result-container").html("");
-			geolocate()
-		}
-	});
-
-	$(".map-view").click(function(){
-		var resultContainer = $(".result-container");
-		resultContainer.html("");
-		var map = $("#map").clone(),
-			viewSwitch = $('.view-switch').clone();
-		resultContainer.prepend(viewSwitch);
-		resultContainer.append(map);
-		initMap();
-	});
-
-	$(".list-view").click(function(){
-		var resultContainer = $(".result-container");
-		resultContainer.html("");
-		var map = $("#map").clone(),
-			viewSwitch = $('.view-switch').clone();
-		resultContainer.prepend(viewSwitch);
-		getEvents();
-	});
+    setupAjaxLoadingIcon();
+    $("#from-date").datepicker().datepicker('setDate', new Date());
+	$(".filter-form").submit(getEvents);
+	$(".location-icon").click(getCurrentLocation);
+	// $(".map-view").on('click', showMapView);
+	$(document).on('click', '.list-view', showListView);
+	$(document).on('click', '.map-view', showMapView);
+	$(".list-view").click(showListView);
 });
 
-function initMap() {
-  var map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: -33.866, lng: 151.196},
+function setupAjaxLoadingIcon(){
+	var loading = $('#loading');
+	$(document)
+	.ajaxStart(function () {
+    	loading.show();
+  	})
+  	.ajaxStop(function () {
+    	loading.hide();
+  	});
+}
+
+function getCurrentLocation(){
+	if(!$(this).hasClass("current-location")){
+	 	loading = $('#loading').show();
+		$(".result-container").html("");
+		geolocate()
+	}
+}
+
+function showListView(){
+	var resultContainer = $(".result-container").removeClass("map-container");
+		resultContainer.html("");
+		getEvents();
+		// resultContainer.prepend($('.view-switch').clone());
+}
+
+function showMapView(){
+	var resultContainer = $(".result-container").addClass("map-container"),
+		map = document.getElementsByClassName("map")[0].cloneNode(false);
+		resultContainer.html("");
+		resultContainer.prepend($('.view-switch').clone());
+		resultContainer.append(map);
+		initMap(map);
+}
+
+//function to get a the date range string for the bands in town API
+//The string begin date is the date selected in the from textbox, and the end date is approximately 1 year later.
+//We send this range so that we can allow the user to select a start date, but also return data from dates occurring after.
+function getDateRange(){
+	var beginDate = new Date($("#from-date").val())
+		endDate = new Date(beginDate.getTime() + (60*60*24*365*1000));
+	return beginDate.toISOString().substring(0,10) + "," + endDate.toISOString().substring(0,10)
+}
+
+function initMap(mapElem) {
+  var map = new google.maps.Map(mapElem, {
+    center: {lat: lat, lng: lng},
     zoom: 15
   });
 
   var infowindow = new google.maps.InfoWindow();
   var service = new google.maps.places.PlacesService(map);
 
-  service.getDetails({
-    placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
-  }, function(place, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      var marker = new google.maps.Marker({
-        map: map,
-        position: place.geometry.location
-      });
-      google.maps.event.addListener(marker, 'click', function() {
-        infowindow.setContent(place.name);
-        infowindow.open(map, this);
-      });
-    }
-  });
+	for (var i = resultsLatLng.length - 1; i >= 0; i--) {
+		var marker = new google.maps.Marker({
+		    position: resultsLatLng[i].latlng,
+		    map: map,
+		    title: resultsLatLng[i].venue
+	  	});
+	  	marker.setMap(map);
+	};
 }
 
 function initialize(){
@@ -89,32 +96,32 @@ function initialize(){
 function getEvents(){
 	//Clear current results
 	$(".result-container").html("");
+	resultsLatLng.length = 0;
 
-	var radius = $("#proximity-list").val(),
-		beginDate = new Date($("#from-date").val())
-		endDate = new Date(beginDate.getTime() + (60*60*24*365*1000));
-	
 	// the parameters we need to pass in our request to the bands in town API
 	var request = {
 	 	format : 'json',
 	 	location : lat + "," + lng,
-	 	date : beginDate.toISOString().substring(0,10) + "," + endDate.toISOString().substring(0,10),
-	 	radius: radius,
-	 	app_id : 'Proximity',
-	 	per_page:2
+	 	date : getDateRange(),
+	 	radius: $("#proximity-list").val(),
+	 	app_id : 'Proximity'
+	 	// per_page:2
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
 	
 	getAJAX(request, eventUrl, "jsonp")
 	.done(function(eventData){
 		$.each(eventData, function(i, eventResult) {
-			getArtistEvents(request, eventResult.id, eventResult.artists[0].name)
-			// var resultView = getEventView(eventResult);
-			// $('.result-container').append(resultView);
+			getArtistEvents(request, eventResult.id, eventResult.artists[0].name);
 		});
+		if(eventData.length > 0)
+		{
+			$('.result-container').prepend($('.view-switch').clone())
+		}
 	});
 }
 
+//Get all events, get artist by event artist name/ get event where event matches first call
 function getArtistEvents(request, eventId, artist){
 	// the parameters we need to pass in our request to the bands in town API
 	 var radius = $("#proximity-list").val(),
@@ -125,15 +132,11 @@ function getArtistEvents(request, eventId, artist){
 	.done(function(eventData){
 		$.each(eventData, function(i, eventResult) {
 			if(eventId == eventResult.id){
-				var resultView = getEventView(eventResult),
-					resultContainer = $('.result-container');
-				resultContainer.prepend($('.view-switch'));
-				resultContainer.append(resultView);
+				$('.result-container').append(getEventView(eventResult));
 			}
 		});
 	});
 }
-//Get all events, get artist by event artist name/ get event where event matches first call
 
 function getAJAX(request, url, datatype){
 	return $.ajax({
@@ -170,7 +173,8 @@ function getEventView(result){
 		 var artistItem = "<li>" + artist.name;
 		 artistList.append(artistItem);
 	});
-
+	
+	resultsLatLng.push({ latlng:{lat: result.venue.latitude, lng: result.venue.longitude}, venue: result.venue.name});
 	return eventContainer;
 }
 

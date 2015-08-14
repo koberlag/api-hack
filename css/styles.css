@@ -67,11 +67,6 @@ h3
 	height: 100%;
 }
 
-.result-container{
-	height: 80%;
-
-}
-
 .event-container{
 	width:75%;
 	border-radius: 5px;
@@ -189,9 +184,19 @@ h3
 	color:#CB9C80;
 }
 
- #map 
+.map-container
+{
+	height:60%;
+}
+
+ .map 
  {
     height: 100%;
+ }
+
+ .error
+ {
+ 	color:#FC4757;
  }
 
 
