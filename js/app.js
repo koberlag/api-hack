@@ -22,7 +22,12 @@ function resetDefaults(){
 
 function searchEvents(){
 	resetDefaults();
-	getEvents();
+	getEvents().done(function(){
+		if($(".map-container").hasClass("active"))
+		{
+			initMap();
+		}
+	});
 }
 
 function setupLazyLoading(){
@@ -69,7 +74,7 @@ function initMap() {
 }
 
 function initializeLocation(){
-	// $(".result-container").find(".map-container").hide();
+	$(".result-container").find(".map-container").hide();
     // Create the autocomplete object, restricting the search
     // to geographical location types.
   	autocomplete = new google.maps.places.Autocomplete(
@@ -100,7 +105,7 @@ function getCurrentLocation(){
 		    var latlng = new google.maps.LatLng(lat, lng);
 		    $("#location").val("(Current Location)");
 	    	$(".location-icon").addClass("current-location");
-	    	getEvents();
+	    	searchEvents();
 		});
 	}
 }
@@ -138,7 +143,7 @@ function getEvents(){
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
 	
-	getAJAX(request, eventUrl, "jsonp")
+	return getAJAX(request, eventUrl, "jsonp")
 	.done(function(eventData){
 		if(eventData.errors)
 		{
@@ -148,11 +153,10 @@ function getEvents(){
 			return;
 		}
 		$.each(eventData, function(i, eventResult) {
-			var objDate = new Date(eventResult.datetime),
-				month 	= months[objDate.getMonth()],
-				day   	= objDate.getDate();
-    			
-				dateString = month + " " + day,
+			var objDate 	= new Date(eventResult.datetime),
+				month 		= months[objDate.getMonth()],
+				day   		= objDate.getDate(),
+				dateString 	= month + " " + day,
 				dateHeaders = $(".list-container").find(".date-header");
 
 			if(dateHeaders.last().text() !== dateString)
@@ -163,8 +167,8 @@ function getEvents(){
 				$(".list-container").append(dateHeaderContainer);
 			}
 			$(".list-container").append(getEventView(eventResult));
+			resultsLatLng.push({ latlng:{lat: eventResult.venue.latitude, lng: eventResult.venue.longitude}, venue: eventResult.artists[0] + " @ " + eventResult.venue.name});
 		});
-		
 		$('.view-switch').removeClass("hidden");
 	});
 }
@@ -174,8 +178,7 @@ function getEventView(result){
 		eventLink 		= eventContainer.find(".event-link"),
 		artistList		= eventContainer.find(".artist-list"),
 		venueName		= eventContainer.find(".venue-name"),
-		eventTime		= eventContainer.find(".event-time"),
-		headliner		= "";
+		eventTime		= eventContainer.find(".event-time");
 
 	eventLink.attr("href", result.url);
 	$(result.artists).each(function(index, artist){
@@ -195,7 +198,6 @@ function getEventView(result){
 	var dateTime = new Date(result.datetime.replace(/\-/g,'\/').replace(/[T|Z]/g,' '));
 	eventTime.text(" @ " + formatAMPM(new Date(dateTime)));
 	
-	resultsLatLng.push({ latlng:{lat: result.venue.latitude, lng: result.venue.longitude}, venue: headliner + " @ " + result.venue.name});
 	return eventContainer;
 }
 
