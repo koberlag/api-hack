@@ -13,6 +13,10 @@ $(function(){
 	$(".location-icon").click(getCurrentLocation);
 	$(document).on('click', '.list-view', showListView);
 	$(document).on('click', '.map-view', showMapView);
+	setupLazyLoading();
+});
+
+function setupLazyLoading(){
 	$(window).scroll(function () {
 	   if ($(window).scrollTop() >= $(document).height() - $(window).height() - 10 
 	   	&& !errorTriggered
@@ -21,25 +25,6 @@ $(function(){
 	      getEvents();
 	   }
 	});
-});
-
-function setupAjaxLoadingIcon(){
-	var loading = $('#loading');
-	$(document)
-	.ajaxStart(function () {
-    	loading.show();
-  	})
-  	.ajaxStop(function () {
-    	loading.hide();
-  	});
-}
-
-function getCurrentLocation(){
-	if(!$(this).hasClass("current-location")){
-	 	loading = $('#loading').show();
-		//$(".result-container").html("");
-		geolocate()
-	}
 }
 
 function showListView(){
@@ -47,14 +32,6 @@ function showListView(){
 	resultContainer.find(".list-container").addClass("active").show();
 	resultContainer.find(".map-container").removeClass("active").hide();
 	resultContainer.removeClass("map-container");
-
-	// var resultContainer = $(".result-container");
-	// 	listContainer = $(".templates .list-container").clone();
-	// if(resultContainer.hasClass("map-container")){
-	// 	resultContainer.removeClass("map-container");
-	// 	resultContainer.html("");
-	// 	getEvents();
-	// }
 }
 
 function showMapView(){
@@ -63,35 +40,11 @@ function showMapView(){
 	resultContainer.find(".map-container").addClass("active").show();
 	resultContainer.addClass("map-container");
 	initMap();
-
-	// 	mapContainer = $(".templates .map-container");
-	// if(!resultContainer.hasClass("map-container")){
-	// 	resultContainer.addClass("map-container"),
-	// 	resultContainer.html("");
-	// 	resultContainer.prepend($('.view-switch').clone());
-
-	// 	initMap();
-	// }
-}
-
-//function to get a the date range string for the bands in town API
-//The string begin date is the date selected in the from textbox, and the end date is approximately 1 year later.
-//We send this range so that we can allow the user to select a start date, but also return data from dates occurring after.
-function getDateRange(){
-	var beginDate = new Date($("#from-date").val())
-		endDate = new Date(beginDate.getTime() + (60*60*24*365*1000));
-	return beginDate.toISOString().substring(0,10) + "," + endDate.toISOString().substring(0,10)
 }
 
 function initMap() {
-  var map = new google.maps.Map(document.getElementById("map"), {
-    // center: {lat: lat, lng: lng};
-    // zoom: 12
-  });
-
-  // var infowindow = new google.maps.InfoWindow();
-  // var service = new google.maps.places.PlacesService(map);
-var bounds = new google.maps.LatLngBounds();
+  var map 	 = new google.maps.Map(document.getElementById("map")),
+  	  bounds = new google.maps.LatLngBounds();
 
 	for (var i = resultsLatLng.length - 1; i >= 0; i--) {
 		var marker = new google.maps.Marker({
@@ -101,7 +54,6 @@ var bounds = new google.maps.LatLngBounds();
 	  	});
 	  	marker.setMap(map);
  		bounds.extend(marker.getPosition());
-
 	};
 	map.fitBounds(bounds);
 }
@@ -128,9 +80,6 @@ function initialize(){
 }
 
 function getEvents(){
-	//Clear current results
-	// $(".result-container").html("");
-
 	// the parameters we need to pass in our request to the bands in town API
 	var request = {
 	 	format : 'json',
@@ -151,7 +100,7 @@ function getEvents(){
 		}
 		$.each(eventData, function(i, eventResult) {
 			var objDate = new Date(eventResult.datetime),
-				month = months[objDate.getMonth()],
+					month = months[objDate.getMonth()],
 				day   = objDate.getDate();
     			
 				dateString = month + " " + day,
@@ -172,36 +121,13 @@ function getEvents(){
 	});
 }
 
-function getAJAX(request, url, datatype){
-	return $.ajax({
-		url: url,
-		data: request,
-		dataType: datatype,
-		type: "GET",
-		})
-	.fail(function(jqXHR, error, errorThrown){
-		showError(error); 
-	});
-}
-
-// takes error string and turns it into displayable DOM element
-var showError = function(error){
-	var errorElem = $('.templates .error').clone();
-	var errorText = '<p>' + error + '</p>';
-	errorElem.append(errorText);
-	$('.result-container').append(errorElem);
-	errorTriggered = true;
-};
-
 function getEventView(result){
 	var eventContainer 	= $(".templates").find(".event-container").clone(),
 		eventLink 		= eventContainer.find(".event-link"),
-		eventHeader     = eventContainer.find(".event-header"),
+		// eventHeader     = eventContainer.find(".event-header"),
 		artistList		= eventContainer.find(".artist-list"),
 		venueName		= eventContainer.find(".venue-name"),
 		eventTime		= eventContainer.find(".event-time");
-		// headliner		= result.artists[0].name,
-		// eventTitle		= headliner + " @ " + result.venue.name;
 
 	eventLink.attr("href", result.url);
 	$(result.artists).each(function(index, artist){
@@ -218,12 +144,50 @@ function getEventView(result){
 	});
 	// eventHeader.text(eventTitle);
 	venueName.text(result.venue.name);
-	// eventTime.text(" @ " + formatAMPM(new Date(result.datetime)));
-	eventTime.text(result.datetime);
+	var dateTime = new Date(result.datetime.replace(/\-/g,'\/').replace(/[T|Z]/g,' '));
+	eventTime.text(" @ " + formatAMPM(new Date(dateTime)));
 	
 	resultsLatLng.push({ latlng:{lat: result.venue.latitude, lng: result.venue.longitude}, venue: result.venue.name});
 	return eventContainer;
 }
+
+function getAJAX(request, url, datatype){
+	return $.ajax({
+		url: url,
+		data: request,
+		dataType: datatype,
+		type: "GET",
+		})
+	.fail(function(jqXHR, error, errorThrown){
+		showError(error); 
+	});
+}
+
+function getCurrentLocation(){
+	if(!$(this).hasClass("current-location")){
+	 	loading = $('#loading').show();
+		//$(".result-container").html("");
+		geolocate()
+	}
+}
+
+//function to get a the date range string for the bands in town API
+//The string begin date is the date selected in the from textbox, and the end date is approximately 1 year later.
+//We send this range so that we can allow the user to select a start date, but also return data from upcoming dates.
+function getDateRange(){
+	var beginDate = new Date($("#from-date").val())
+		endDate = new Date(beginDate.getTime() + (60*60*24*365*1000));
+	return beginDate.toISOString().substring(0,10) + "," + endDate.toISOString().substring(0,10)
+}
+
+// takes error string and turns it into displayable DOM element
+var showError = function(error){
+	var errorElem = $('.templates .error').clone();
+	var errorText = '<p>' + error + '</p>';
+	errorElem.append(errorText);
+	$('.result-container').append(errorElem);
+	errorTriggered = true;
+};
 
 function formatAMPM(date) {
   var hours = date.getHours();
@@ -255,6 +219,17 @@ function geolocate(){
 			}
 	    });
 	});
+}
+
+function setupAjaxLoadingIcon(){
+	var loading = $('#loading');
+	$(document)
+	.ajaxStart(function () {
+    	loading.show();
+  	})
+  	.ajaxStop(function () {
+    	loading.hide();
+  	});
 }
 
  
