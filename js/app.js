@@ -1,4 +1,6 @@
-var autocomplete, lat, lng, resultsLatLng = [], pageNum = 1, errorTriggered = false;
+var autocomplete, lat, lng, resultsLatLng = [], pageNum = 1, errorTriggered = false,
+ months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 $(function(){
     setupAjaxLoadingIcon();
     $("#from-date").datepicker().datepicker('setDate', new Date());
@@ -11,14 +13,14 @@ $(function(){
 	$(".location-icon").click(getCurrentLocation);
 	$(document).on('click', '.list-view', showListView);
 	$(document).on('click', '.map-view', showMapView);
-	// $(window).scroll(function () {
-	//    if ($(window).scrollTop() >= $(document).height() - $(window).height() - 10 
-	//    	&& !errorTriggered
-	//    	&& $(".list-container").hasClass("active")){
-	//       pageNum++;
-	//       getEvents();
-	//    }
-	// });
+	$(window).scroll(function () {
+	   if ($(window).scrollTop() >= $(document).height() - $(window).height() - 10 
+	   	&& !errorTriggered
+	   	&& $(".list-container").hasClass("active")){
+	      pageNum++;
+	      getEvents();
+	   }
+	});
 });
 
 function setupAjaxLoadingIcon(){
@@ -136,22 +138,21 @@ function getEvents(){
 	 	date : getDateRange(),
 	 	radius: $("#proximity-list").val(),
 	 	app_id : 'Proximity',
-	 	per_page:25,
+	 	per_page:1,
 	 	page: pageNum
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
 	
 	getAJAX(request, eventUrl, "jsonp")
 	.done(function(eventData){
-		if(eventData.length === 0)
+		if(eventData.errors || eventData.length === 0)
 		{
 			return;
 		}
 		$.each(eventData, function(i, eventResult) {
 			var objDate = new Date(eventResult.datetime),
-    			locale = "en-us",
-    			month = objDate.toLocaleString(locale, { month: "short" }),
-    			day = objDate.toLocaleString(locale, { day: "numeric" }),
+				month = months[objDate.getMonth()],
+				day   = objDate.getDate();
     			
 				dateString = month + " " + day,
 				dateHeaders = $(".list-container").find(".date-header");
@@ -255,3 +256,6 @@ function geolocate(){
 	    });
 	});
 }
+
+ 
+

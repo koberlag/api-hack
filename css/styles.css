@@ -206,6 +206,12 @@ h3
  	color:#FC4757;
  }
 
+ .no-data
+ {
+ 	font-size: 1.25em
+ 	color:#EFF1F2;
+ }
+
 
 .hidden{
 	display: none;
