@@ -76,6 +76,7 @@ h3
 	background-color: #EFF1F2;
 	opacity: .75;
 	font-size: 1.25em;
+	padding: 1em 0 1em 0;
 }
 
 .event-link{
@@ -132,7 +133,11 @@ h3
     /*background-color: rgba(0,0,0,0.5);*/
 }
 
-
+.date-header
+{
+	color:#CB9C80;
+	margin:1em 0 .25em 0;
+}
 
 .view-switch
 {
@@ -147,17 +152,19 @@ h3
 
 .map-view
 {
-
+	margin-left: .5em;
 }
 
 .artist-list li{
 	list-style-type: none;
+	display: inline-block;
+	font-size: 1.5em;
 }
 
 .artist-list
 {
 	padding: 0;
-	margin-top: 0;
+	margin: 0 0 5px 0;
 }
 
 #loading{
@@ -181,15 +188,15 @@ h3
 
 .view-switch .list-view:hover
 {
-	color:#CB9C80;
+	color:#58D4E1;
 }
 
 .map-container
 {
-	height:60%;
+	height:100%;
 }
 
- .map 
+ #map 
  {
     height: 100%;
  }

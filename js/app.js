@@ -7,7 +7,7 @@ $(function(){
 	// $(".map-view").on('click', showMapView);
 	$(document).on('click', '.list-view', showListView);
 	$(document).on('click', '.map-view', showMapView);
-	$(".list-view").click(showListView);
+	// $(".list-view").click(showListView);
 });
 
 function setupAjaxLoadingIcon(){
@@ -24,25 +24,45 @@ function setupAjaxLoadingIcon(){
 function getCurrentLocation(){
 	if(!$(this).hasClass("current-location")){
 	 	loading = $('#loading').show();
-		$(".result-container").html("");
+		//$(".result-container").html("");
 		geolocate()
 	}
 }
 
+function toggleView(){
+	var resultContainer = $(".result-container");
+		listContainer = resultContainer.find(".list-container");
+		mapContainer = resultContainer.find(".map-container")
+	listContainer.toggle();
+	mapContainer.toggle();
+}
+
 function showListView(){
-	var resultContainer = $(".result-container").removeClass("map-container");
-		resultContainer.html("");
-		getEvents();
-		// resultContainer.prepend($('.view-switch').clone());
+	var resultContainer = $(".result-container");
+	resultContainer.find(".list-container").show();
+	resultContainer.find(".map-container").hide();
+	// var resultContainer = $(".result-container");
+	// 	listContainer = $(".templates .list-container").clone();
+	// if(resultContainer.hasClass("map-container")){
+	// 	resultContainer.removeClass("map-container");
+	// 	resultContainer.html("");
+	// 	getEvents();
+	// }
 }
 
 function showMapView(){
-	var resultContainer = $(".result-container").addClass("map-container"),
-		map = document.getElementsByClassName("map")[0].cloneNode(false);
-		resultContainer.html("");
-		resultContainer.prepend($('.view-switch').clone());
-		resultContainer.append(map);
-		initMap(map);
+	var resultContainer = $(".result-container");
+	resultContainer.find(".list-container").hide();
+	resultContainer.find(".map-container").show();
+	resultContainer.addClass("map-container");
+	// 	mapContainer = $(".templates .map-container");
+	// if(!resultContainer.hasClass("map-container")){
+	// 	resultContainer.addClass("map-container"),
+	// 	resultContainer.html("");
+	// 	resultContainer.prepend($('.view-switch').clone());
+
+	// 	initMap();
+	// }
 }
 
 //function to get a the date range string for the bands in town API
@@ -54,10 +74,10 @@ function getDateRange(){
 	return beginDate.toISOString().substring(0,10) + "," + endDate.toISOString().substring(0,10)
 }
 
-function initMap(mapElem) {
-  var map = new google.maps.Map(mapElem, {
+function initMap() {
+  var map = new google.maps.Map(document.getElementById("map"), {
     center: {lat: lat, lng: lng},
-    zoom: 15
+    zoom: 8
   });
 
   var infowindow = new google.maps.InfoWindow();
@@ -74,6 +94,7 @@ function initMap(mapElem) {
 }
 
 function initialize(){
+	$(".result-container").find(".map-container").hide();
  // Create the autocomplete object, restricting the search
   // to geographical location types.
   autocomplete = new google.maps.places.Autocomplete(
@@ -95,7 +116,7 @@ function initialize(){
 
 function getEvents(){
 	//Clear current results
-	$(".result-container").html("");
+	// $(".result-container").html("");
 	resultsLatLng.length = 0;
 
 	// the parameters we need to pass in our request to the bands in town API
@@ -105,38 +126,57 @@ function getEvents(){
 	 	date : getDateRange(),
 	 	radius: $("#proximity-list").val(),
 	 	app_id : 'Proximity'
-	 	// per_page:2
+	 	// ,per_page:2
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
 	
 	getAJAX(request, eventUrl, "jsonp")
 	.done(function(eventData){
 		$.each(eventData, function(i, eventResult) {
-			getArtistEvents(request, eventResult.id, eventResult.artists[0].name);
+			var objDate = new Date(eventResult.datetime),
+    			locale = "en-us",
+    			month = objDate.toLocaleString(locale, { month: "short" }),
+    			day = objDate.toLocaleString(locale, { day: "numeric" }),
+    			
+				dateString = month + " " + day,
+				dateHeaders = $(".list-container").find(".date-header");
+
+			if(dateHeaders.last().text() !== dateString)
+			{
+				var dateHeaderContainer = $(".templates .date-header-container").clone(),
+				dateHeader = dateHeaderContainer.find(".date-header");
+				dateHeader.text(dateString);
+				$(".list-container").append(dateHeaderContainer);
+			}
+			$(".list-container").append(getEventView(eventResult));
+			//getArtistEvents(request, eventResult.id, eventResult.artists[0].name);
 		});
 		if(eventData.length > 0)
 		{
-			$('.result-container').prepend($('.view-switch').clone())
+			$('.result-container').removeClass("hidden");
+			// $('.result-container').prepend($('.view-switch').clone())
 		}
 	});
+	initMap();
 }
 
-//Get all events, get artist by event artist name/ get event where event matches first call
-function getArtistEvents(request, eventId, artist){
-	// the parameters we need to pass in our request to the bands in town API
-	 var radius = $("#proximity-list").val(),
-	 eventUrl = "http://api.bandsintown.com/artists/name/events/search";
-	 request.artist_id = artist;
-	 request.api_version = "2.0";
-	getAJAX(request, eventUrl, "jsonp")
-	.done(function(eventData){
-		$.each(eventData, function(i, eventResult) {
-			if(eventId == eventResult.id){
-				$('.result-container').append(getEventView(eventResult));
-			}
-		});
-	});
-}
+// //Get all events, get artist by event artist name/ get event where event matches first call
+// function getArtistEvents(request, eventId, artist){
+// 	// the parameters we need to pass in our request to the bands in town API
+// 	 var radius = $("#proximity-list").val(),
+// 	 eventUrl = "http://api.bandsintown.com/artists/name/events/search";
+// 	 request.artist_id = artist;
+// 	 request.api_version = "2.0";
+// 	getAJAX(request, eventUrl, "jsonp")
+// 	.done(function(eventData){
+// 		$.each(eventData, function(i, eventResult) {
+// 			if(eventId == eventResult.id){
+// 				// $('.result-container').append(getEventView(eventResult));
+// 				$(".list-container").append(getEventView(eventResult));
+// 			}
+// 		});
+// 	});
+// }
 
 function getAJAX(request, url, datatype){
 	return $.ajax({
@@ -162,20 +202,43 @@ function getEventView(result){
 	var eventContainer 	= $(".templates").find(".event-container").clone(),
 		eventLink 		= eventContainer.find(".event-link"),
 		eventHeader     = eventContainer.find(".event-header"),
+		artistList		= eventContainer.find(".artist-list"),
+		venueName		= eventContainer.find(".venue-name"),
 		eventTime		= eventContainer.find(".event-time"),
-		artistList		= eventContainer.find(".artist-list");
+		headliner		= result.artists[0].name,
+		eventTitle		= headliner + " @ " + result.venue.name;
 
-	eventLink.attr("href", result.facebook_rsvp_url);
-	eventHeader.text(result.title);
-	eventTime.text(result.formatted_datetime);
-
+	eventLink.attr("href", result.url);
 	$(result.artists).each(function(index, artist){
-		 var artistItem = "<li>" + artist.name;
+		 var artistItem = "";
+		 if(index === 0)
+		 {
+		  	artistItem = "<li>" + artist.name;
+		 }
+		 else
+		 {
+		  	artistItem = "<li>" + " , " + artist.name;
+		 }
 		 artistList.append(artistItem);
 	});
+	eventHeader.text(eventTitle);
+	venueName.text(result.venue.name);
+	// eventTime.text(" @ " + formatAMPM(new Date(result.datetime)));
+	eventTime.text(result.datetime);
 	
 	resultsLatLng.push({ latlng:{lat: result.venue.latitude, lng: result.venue.longitude}, venue: result.venue.name});
 	return eventContainer;
+}
+
+function formatAMPM(date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  var strTime = hours + ':' + minutes + ' ' + ampm;
+  return strTime;
 }
 
 //Gets the current location and displays the city and state
