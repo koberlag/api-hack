@@ -1,13 +1,23 @@
-var autocomplete, lat, lng, resultsLatLng = [];
+var autocomplete, lat, lng, resultsLatLng = [], pageNum = 1, errorTriggered = false;
 $(function(){
     setupAjaxLoadingIcon();
     $("#from-date").datepicker().datepicker('setDate', new Date());
-	$(".filter-form").submit(getEvents);
+	$(".filter-form").submit(function()
+		{
+
+			getEvents
+		});
 	$(".location-icon").click(getCurrentLocation);
 	// $(".map-view").on('click', showMapView);
 	$(document).on('click', '.list-view', showListView);
 	$(document).on('click', '.map-view', showMapView);
 	// $(".list-view").click(showListView);
+	$(window).scroll(function () {
+	   if ($(window).scrollTop() >= $(document).height() - $(window).height() - 100 && !errorTriggered) {
+	      pageNum++;
+	      getEvents();
+	   }
+	});
 });
 
 function setupAjaxLoadingIcon(){
@@ -125,8 +135,9 @@ function getEvents(){
 	 	location : lat + "," + lng,
 	 	date : getDateRange(),
 	 	radius: $("#proximity-list").val(),
-	 	app_id : 'Proximity'
-	 	// ,per_page:2
+	 	app_id : 'Proximity',
+	 	per_page:1,
+	 	page: pageNum
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
 	
@@ -149,7 +160,6 @@ function getEvents(){
 				$(".list-container").append(dateHeaderContainer);
 			}
 			$(".list-container").append(getEventView(eventResult));
-			//getArtistEvents(request, eventResult.id, eventResult.artists[0].name);
 		});
 		if(eventData.length > 0)
 		{
@@ -159,24 +169,6 @@ function getEvents(){
 	});
 	initMap();
 }
-
-// //Get all events, get artist by event artist name/ get event where event matches first call
-// function getArtistEvents(request, eventId, artist){
-// 	// the parameters we need to pass in our request to the bands in town API
-// 	 var radius = $("#proximity-list").val(),
-// 	 eventUrl = "http://api.bandsintown.com/artists/name/events/search";
-// 	 request.artist_id = artist;
-// 	 request.api_version = "2.0";
-// 	getAJAX(request, eventUrl, "jsonp")
-// 	.done(function(eventData){
-// 		$.each(eventData, function(i, eventResult) {
-// 			if(eventId == eventResult.id){
-// 				// $('.result-container').append(getEventView(eventResult));
-// 				$(".list-container").append(getEventView(eventResult));
-// 			}
-// 		});
-// 	});
-// }
 
 function getAJAX(request, url, datatype){
 	return $.ajax({
@@ -196,6 +188,7 @@ var showError = function(error){
 	var errorText = '<p>' + error + '</p>';
 	errorElem.append(errorText);
 	$('.result-container').append(errorElem);
+	errorTriggered = true;
 };
 
 function getEventView(result){
