@@ -4,20 +4,21 @@ $(function(){
     $("#from-date").datepicker().datepicker('setDate', new Date());
 	$(".filter-form").submit(function()
 		{
-
+			resultsLatLng.length = 0;
+			pageNum = 1;
 			getEvents
 		});
 	$(".location-icon").click(getCurrentLocation);
-	// $(".map-view").on('click', showMapView);
 	$(document).on('click', '.list-view', showListView);
 	$(document).on('click', '.map-view', showMapView);
-	// $(".list-view").click(showListView);
-	$(window).scroll(function () {
-	   if ($(window).scrollTop() >= $(document).height() - $(window).height() - 100 && !errorTriggered) {
-	      pageNum++;
-	      getEvents();
-	   }
-	});
+	// $(window).scroll(function () {
+	//    if ($(window).scrollTop() >= $(document).height() - $(window).height() - 10 
+	//    	&& !errorTriggered
+	//    	&& $(".list-container").hasClass("active")){
+	//       pageNum++;
+	//       getEvents();
+	//    }
+	// });
 });
 
 function setupAjaxLoadingIcon(){
@@ -39,18 +40,12 @@ function getCurrentLocation(){
 	}
 }
 
-function toggleView(){
-	var resultContainer = $(".result-container");
-		listContainer = resultContainer.find(".list-container");
-		mapContainer = resultContainer.find(".map-container")
-	listContainer.toggle();
-	mapContainer.toggle();
-}
-
 function showListView(){
 	var resultContainer = $(".result-container");
-	resultContainer.find(".list-container").show();
-	resultContainer.find(".map-container").hide();
+	resultContainer.find(".list-container").addClass("active").show();
+	resultContainer.find(".map-container").removeClass("active").hide();
+	resultContainer.removeClass("map-container");
+
 	// var resultContainer = $(".result-container");
 	// 	listContainer = $(".templates .list-container").clone();
 	// if(resultContainer.hasClass("map-container")){
@@ -62,9 +57,11 @@ function showListView(){
 
 function showMapView(){
 	var resultContainer = $(".result-container");
-	resultContainer.find(".list-container").hide();
-	resultContainer.find(".map-container").show();
+	resultContainer.find(".list-container").removeClass("active").hide();
+	resultContainer.find(".map-container").addClass("active").show();
 	resultContainer.addClass("map-container");
+	initMap();
+
 	// 	mapContainer = $(".templates .map-container");
 	// if(!resultContainer.hasClass("map-container")){
 	// 	resultContainer.addClass("map-container"),
@@ -86,12 +83,13 @@ function getDateRange(){
 
 function initMap() {
   var map = new google.maps.Map(document.getElementById("map"), {
-    center: {lat: lat, lng: lng},
-    zoom: 8
+    // center: {lat: lat, lng: lng};
+    // zoom: 12
   });
 
-  var infowindow = new google.maps.InfoWindow();
-  var service = new google.maps.places.PlacesService(map);
+  // var infowindow = new google.maps.InfoWindow();
+  // var service = new google.maps.places.PlacesService(map);
+var bounds = new google.maps.LatLngBounds();
 
 	for (var i = resultsLatLng.length - 1; i >= 0; i--) {
 		var marker = new google.maps.Marker({
@@ -100,7 +98,10 @@ function initMap() {
 		    title: resultsLatLng[i].venue
 	  	});
 	  	marker.setMap(map);
+ 		bounds.extend(marker.getPosition());
+
 	};
+	map.fitBounds(bounds);
 }
 
 function initialize(){
@@ -127,7 +128,6 @@ function initialize(){
 function getEvents(){
 	//Clear current results
 	// $(".result-container").html("");
-	resultsLatLng.length = 0;
 
 	// the parameters we need to pass in our request to the bands in town API
 	var request = {
@@ -136,13 +136,17 @@ function getEvents(){
 	 	date : getDateRange(),
 	 	radius: $("#proximity-list").val(),
 	 	app_id : 'Proximity',
-	 	per_page:1,
+	 	per_page:25,
 	 	page: pageNum
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
 	
 	getAJAX(request, eventUrl, "jsonp")
 	.done(function(eventData){
+		if(eventData.length === 0)
+		{
+			return;
+		}
 		$.each(eventData, function(i, eventResult) {
 			var objDate = new Date(eventResult.datetime),
     			locale = "en-us",
@@ -161,13 +165,10 @@ function getEvents(){
 			}
 			$(".list-container").append(getEventView(eventResult));
 		});
-		if(eventData.length > 0)
-		{
-			$('.result-container').removeClass("hidden");
+		
+		$('.result-container').removeClass("hidden");
 			// $('.result-container').prepend($('.view-switch').clone())
-		}
 	});
-	initMap();
 }
 
 function getAJAX(request, url, datatype){
@@ -197,9 +198,9 @@ function getEventView(result){
 		eventHeader     = eventContainer.find(".event-header"),
 		artistList		= eventContainer.find(".artist-list"),
 		venueName		= eventContainer.find(".venue-name"),
-		eventTime		= eventContainer.find(".event-time"),
-		headliner		= result.artists[0].name,
-		eventTitle		= headliner + " @ " + result.venue.name;
+		eventTime		= eventContainer.find(".event-time");
+		// headliner		= result.artists[0].name,
+		// eventTitle		= headliner + " @ " + result.venue.name;
 
 	eventLink.attr("href", result.url);
 	$(result.artists).each(function(index, artist){
@@ -214,7 +215,7 @@ function getEventView(result){
 		 }
 		 artistList.append(artistItem);
 	});
-	eventHeader.text(eventTitle);
+	// eventHeader.text(eventTitle);
 	venueName.text(result.venue.name);
 	// eventTime.text(" @ " + formatAMPM(new Date(result.datetime)));
 	eventTime.text(result.datetime);
