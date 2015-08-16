@@ -8,8 +8,8 @@ $(function(){
     $("#from-date").datepicker().datepicker('setDate', new Date());
 	$(".location-icon").click(getCurrentLocation);
 	$("#search-button").click(searchEvents)
-	$(document).on('click', '.list-view', showListView);
-	$(document).on('click', '.map-view', showMapView);
+	$('.list-view').click(showListView);
+	$('.map-view').click(showMapView);
 });
 
 function resetDefaults(){
