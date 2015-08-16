@@ -11,13 +11,13 @@
 	<link href='//fonts.googleapis.com/css?family=Economica:400,700' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 	<script src="js/app.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?signed_in=true&libraries=places&callback=initialize" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?signed_in=true&libraries=places&callback=initializeLocation" async defer></script>
 </head>
 <body>
 	<h1>Proximity</h1>
 	<div class="content">
 		<section class="filter-container">
-			<form class="filter-form" onsubmit="return false;">
+			<!-- <form class="filter-form" onsubmit="return false;"> -->
 				<!-- <div class="row"> -->
 					<!-- Use Blur event-->
 					<!-- <span>Artists: </span><input type="search"> 
@@ -33,11 +33,11 @@
 					</select>
 					<span id="location-label">of: </span>
 					 <input id="location" placeholder="Enter Your City Name"
-             				onFocus="geolocate" type="text"></input>
+             				onFocus="getCurrentLocation" type="text" onsubmit="return false;"></input>
              		<span class="location-icon"><i class="fa fa-map-marker"></i></span>
              		<span id="date-label">from: </span>
 					<input type="text" id="from-date">
-					<input id="submit-button" type="submit" value="Search">
+					<input id="search-button" type="button" value="Search">
 				</div>
 				<!-- <div class="row">
 					<span id="date-label">from: </span>
@@ -56,12 +56,12 @@
 				<!-- </div> -->
 					
 
-			</form>
+			<!-- </form> -->
 		</section>
 		<div id="loading"><i class="fa fa-spinner fa-pulse"></i></div>
 		
-		<section class="result-container hidden">
-			<div class="view-switch">
+		<section class="result-container ">
+			<div class="view-switch hidden">
 				<span class="list-view"><i class="fa fa-bars"></i></span>
 				<span class="map-view"><i class="fa fa-map-marker"></i></span>
 			</div>
