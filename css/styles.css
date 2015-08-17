@@ -52,13 +52,7 @@ h3
 {
 	border-radius: 10px;
 	background-color: #3A3F4F;
-	/*text-align: center;*/
-}
-
-.result-container
-{
 	text-align: center;
-
 }
 
 .content{
@@ -119,9 +113,9 @@ h3
 
 .row
 {
-	margin: .75em auto;
+	margin: .75em 0;
 	padding:15px 0;
-	width:92%;
+	/*width:92%;*/
 }
 
 .location-icon
@@ -212,7 +206,23 @@ h3
  	color:#FC4757;
  }
 
-
 .hidden{
 	display: none;
+}
+
+.blue
+{
+	color:#58D4E1;
+}
+
+.red
+{
+	color: #FC4757;
+}
+@media (max-width: 587px) 
+{ 
+	.filter-container
+	{
+		text-align: left;
+	}
 }

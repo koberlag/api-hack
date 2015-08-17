@@ -47,6 +47,8 @@ function showListView(){
 	resultContainer.find(".list-container").addClass("active").show();
 	resultContainer.find(".map-container").removeClass("active").hide();
 	resultContainer.removeClass("map-container");
+	resultContainer.find(".list-view").addClass("blue");
+	resultContainer.find(".map-view").removeClass("red");
 }
 
 function showMapView(){
@@ -54,6 +56,8 @@ function showMapView(){
 	resultContainer.find(".list-container").removeClass("active").hide();
 	resultContainer.find(".map-container").addClass("active").show();
 	resultContainer.addClass("map-container");
+	resultContainer.find(".list-view").removeClass("blue");
+	resultContainer.find(".map-view").addClass("red");
 	initMap();
 }
 
