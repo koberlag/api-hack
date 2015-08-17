@@ -52,6 +52,11 @@ h3
 {
 	border-radius: 10px;
 	background-color: #3A3F4F;
+	/*text-align: center;*/
+}
+
+.result-container
+{
 	text-align: center;
 
 }
@@ -106,15 +111,17 @@ h3
 	margin:0px 5px 0px 25px;
 }
 
-#submit-button
+#search-button
 {
 	background-color: #B3B3B7;
+	margin-left: 25px;
 }
 
 .row
 {
-	margin: .75em 0;
+	margin: .75em auto;
 	padding:15px 0;
+	width:92%;
 }
 
 .location-icon
@@ -131,6 +138,11 @@ h3
 {
 	color:#CB9C80;
 	margin:1em 0 .25em 0;
+}
+
+.label-input-container
+{
+	display: inline-block;
 }
 
 .view-switch
@@ -198,12 +210,6 @@ h3
  .error
  {
  	color:#FC4757;
- }
-
- .no-data
- {
- 	font-size: 1.25em
- 	color:#EFF1F2;
  }
 
 

@@ -17,12 +17,8 @@
 	<h1>Proximity</h1>
 	<div class="content">
 		<section class="filter-container">
-			<!-- <form class="filter-form" onsubmit="return false;"> -->
-				<!-- <div class="row"> -->
-					<!-- Use Blur event-->
-					<!-- <span>Artists: </span><input type="search"> 
-				</div> -->
-				<div class="row">
+			<div class="row">
+				<div class="label-input-container">
 					<span id="proximity-label">Within: </span>
 					<select name="proximity" id="proximity-list">
 						<option value="1">1 Mile</option>
@@ -31,32 +27,19 @@
 						<option value="25">25 Miles</option>
 						<option value="50">50 Miles</option>
 					</select>
+				</div>
+				<div class="label-input-container">
 					<span id="location-label">of: </span>
 					 <input id="location" placeholder="Enter Your City Name"
-             				onFocus="getCurrentLocation" type="text" onsubmit="return false;"></input>
-             		<span class="location-icon"><i class="fa fa-map-marker"></i></span>
-             		<span id="date-label">from: </span>
+		     				onFocus="getCurrentLocation" type="text" onsubmit="return false;"></input>
+		     		<span class="location-icon"><i class="fa fa-map-marker"></i></span>
+		     	</div>
+		     	<div class="label-input-container">
+		     		<span id="date-label">from: </span>
 					<input type="text" id="from-date">
 					<input id="search-button" type="button" value="Search">
 				</div>
-				<!-- <div class="row">
-					<span id="date-label">from: </span>
-					<input type="text" id="from-date"> -->
-					<!-- <span>in: </span>-->
-					<!-- <input type="number" name="proximity" id="proximity-input" min="0" max="24""> -->
-					<!-- <select name="proximity" id="proximity-list">
-						<option value="">(Any Time)</option>
-						<option value="1">1 hour</option>
-						<option value="2">2 hours</option>
-						<option value="3">3 hours</option>
-						<option value="4">4 hours</option>
-						<option value="5">5 hours</option>
-						<option value="6">6 hours</option>
-					</select> -->
-				<!-- </div> -->
-					
-
-			<!-- </form> -->
+			</div>
 		</section>
 		<div id="loading"><i class="fa fa-spinner fa-pulse"></i></div>
 		
@@ -72,26 +55,6 @@
 		</section>
 		
 		<div class="templates hidden">
-			<!-- <div class="event-container">
-				<a href="" class="event-link">
-					<div class="artist-container">
-						<h3>Artists</h3>
-						<ul class="artist-list"></ul>
-					</div>
-					<div class="venue-name"></div>
-					<div class="event-time"></div>
-				</a>
-			</div> -->
-			<!-- <div class="event-container">
-				<a href="" class="event-link">
-					<h3 class="event-header"></h3>
-					<div class="event-time"></div>
-					<div class="artist-container">
-						<span>w/</span>
-						<ul class="artist-list"></ul>
-					</div>
-				</a>
-			</div> -->
 			<div class="date-header-container">
 				<h2 class="date-header"></h2>
 			</div>

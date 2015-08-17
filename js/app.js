@@ -167,7 +167,7 @@ function getEvents(){
 				$(".list-container").append(dateHeaderContainer);
 			}
 			$(".list-container").append(getEventView(eventResult));
-			resultsLatLng.push({ latlng:{lat: eventResult.venue.latitude, lng: eventResult.venue.longitude}, venue: eventResult.artists[0] + " @ " + eventResult.venue.name});
+			resultsLatLng.push({ latlng:{lat: eventResult.venue.latitude, lng: eventResult.venue.longitude}, venue: eventResult.artists[0].name + " @ " + eventResult.venue.name});
 		});
 		$('.view-switch').removeClass("hidden");
 	});
