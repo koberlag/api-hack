@@ -48,10 +48,16 @@ var stickyOffset = $('.sticky').offset().top;
 
 $(window).scroll(function(){
   var sticky = $('.sticky'),
-      scroll = $(window).scrollTop();
+      scroll = $(window).scrollTop(),
+      offsetContent = sticky.height();
 
-  if (scroll >= 0) sticky.addClass('fixed-date');
-  else sticky.removeClass('fixed-date');
+  if (scroll >= stickyOffset){
+  	sticky.addClass('fixed-date');
+  	$(".result-content").css("margin",offsetContent);
+  }
+  else {
+  	sticky.removeClass('fixed-date');
+  }
 });
 }
 
@@ -262,13 +268,16 @@ function formatAMPM(date) {
 
 
 function setupAjaxLoadingIcon(){
-	var loading = $('#loading');
+	var loading = $('#loading'),
+		overlay = $(".overlay");
 	$(document)
 	.ajaxStart(function () {
     	loading.show();
+    	overlay.show();
   	})
   	.ajaxStop(function () {
     	loading.hide();
+    	overlay.hide();
   	});
 }
 

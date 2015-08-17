@@ -131,7 +131,8 @@ h3
 .date-header-container
 {
 	height:40px;
-	background-color: "#2A2F3D";
+	background-color: #2A2F3D;
+	z-index: 100;
 }
 
 .date-header
@@ -176,11 +177,12 @@ h3
 
 #loading{
 	font-size: 3em;
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     margin: -24px 0 0 -27px;
     z-index: 999;
+    color:#58D4E1
 }
 
 .current-location
@@ -225,6 +227,15 @@ h3
 	width: 100%;
 }
 
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+  background-color: rgba(0,0,0,0.5);
+}
 
 .blue
 {
