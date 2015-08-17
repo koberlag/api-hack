@@ -5,8 +5,15 @@ $(function(){
 	resetDefaults();
     setupAjaxLoadingIcon();
 	setupLazyLoading();
-    $("#from-date").datepicker().datepicker('setDate', new Date());
+    $("#from-date").change(searchEvents).datepicker({
+     onSelect: function(d,i){
+          if(d !== i.lastVal){
+              $(this).change();
+          }
+     }}).datepicker('setDate', new Date());
+	
 	$(".location-icon").click(getCurrentLocation);
+	$("#proximity-list").change(searchEvents);
 	$("#search-button").click(searchEvents)
 	$('.list-view').click(showListView);
 	$('.map-view').click(showMapView);
@@ -27,7 +34,6 @@ function searchEvents(){
 		{
 			initMap();
 		}
-		setupStickyDateHeaders();
 	});
 }
 
@@ -41,24 +47,6 @@ function setupLazyLoading(){
 	      getEvents();
 	   }
 	});
-}
-
-function setupStickyDateHeaders(){
-var stickyOffset = $('.sticky').offset().top;
-
-$(window).scroll(function(){
-  var sticky = $('.sticky'),
-      scroll = $(window).scrollTop(),
-      offsetContent = sticky.height();
-
-  if (scroll >= stickyOffset){
-  	sticky.addClass('fixed-date');
-  	$(".result-content").css("margin",offsetContent);
-  }
-  else {
-  	sticky.removeClass('fixed-date');
-  }
-});
 }
 
 function showListView(){
@@ -154,6 +142,7 @@ var geoLocation = {
 };
 
 function getEvents(){
+
 	// the parameters we need to pass in our request to the bands in town API
 	var request = {
 	 	format : 'json',
@@ -161,7 +150,7 @@ function getEvents(){
 	 	date : getDateRange(),
 	 	radius: $("#proximity-list").val(),
 	 	app_id : 'Proximity',
-	 	per_page:25,
+	 	per_page:50,
 	 	page: pageNum
 	 },
 	 eventUrl = "http://api.bandsintown.com/events/search";
@@ -180,7 +169,10 @@ function getEvents(){
 				month 		= months[objDate.getMonth()],
 				day   		= objDate.getDate(),
 				dateString 	= month + " " + day,
-				dateHeaders = $(".list-container").find(".date-header");
+				dateHeaders = $(".list-container").find(".date-header"),
+				artists     = eventResult.artists,
+				venueName 		= "",
+				headlinerName	= "";
 
 			if(dateHeaders.last().text() !== dateString)
 			{
@@ -190,7 +182,17 @@ function getEvents(){
 				$(".list-container").append(dateHeaderContainer);
 			}
 			$(".list-container").append(getEventView(eventResult));
-			resultsLatLng.push({ latlng:{lat: eventResult.venue.latitude, lng: eventResult.venue.longitude}, venue: eventResult.artists[0].name + " @ " + eventResult.venue.name});
+
+			if(artists.length > 0)
+			{
+				headliner = artists[0].name;
+			}
+			if(eventResult.venue)
+			{
+				venueName = eventResult.venue.name;
+			}
+			resultsLatLng.push({ latlng:{lat: eventResult.venue.latitude, lng: eventResult.venue.longitude}, venue: headlinerName + " @ " + venueName});
+
 		});
 		$('.view-switch').removeClass("hidden");
 	});
