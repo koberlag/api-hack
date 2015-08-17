@@ -27,6 +27,7 @@ function searchEvents(){
 		{
 			initMap();
 		}
+		setupStickyDateHeaders();
 	});
 }
 
@@ -40,6 +41,18 @@ function setupLazyLoading(){
 	      getEvents();
 	   }
 	});
+}
+
+function setupStickyDateHeaders(){
+var stickyOffset = $('.sticky').offset().top;
+
+$(window).scroll(function(){
+  var sticky = $('.sticky'),
+      scroll = $(window).scrollTop();
+
+  if (scroll >= 0) sticky.addClass('fixed-date');
+  else sticky.removeClass('fixed-date');
+});
 }
 
 function showListView(){
@@ -165,7 +178,7 @@ function getEvents(){
 
 			if(dateHeaders.last().text() !== dateString)
 			{
-				var dateHeaderContainer = $(".templates .date-header-container").clone(),
+				var dateHeaderContainer = $(".templates .date-header-container").clone().addClass("sticky"),
 				dateHeader = dateHeaderContainer.find(".date-header");
 				dateHeader.text(dateString);
 				$(".list-container").append(dateHeaderContainer);
